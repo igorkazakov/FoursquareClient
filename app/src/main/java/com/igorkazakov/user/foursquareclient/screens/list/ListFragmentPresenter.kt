@@ -14,6 +14,9 @@ import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.Companion.ACC
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.Companion.REQUEST_CODE_ACCESS_COARSE_LOCATION
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.Companion.REQUEST_CODE_ACCESS_FINE_LOCATION
 import io.reactivex.android.schedulers.AndroidSchedulers
+import android.location.Criteria
+
+
 
 
 @InjectViewState
@@ -34,6 +37,7 @@ class ListFragmentPresenter(private val mService: DataService,
 
 //    override fun onFirstViewAttach() {
 //        super.onFirstViewAttach()
+//        val location = mLocationManager.getLastKnownLocation(mLocationManager.getBestProvider(Criteria(), false);)
 //        loadData("47.217693, 38.925319")
 //    }
 
@@ -63,7 +67,7 @@ class ListFragmentPresenter(private val mService: DataService,
                         REQUEST_CODE_ACCESS_FINE_LOCATION)) {
 
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 9999,
-                    100f, mLocationListener)
+                    0f, mLocationListener)
         }
     }
 }

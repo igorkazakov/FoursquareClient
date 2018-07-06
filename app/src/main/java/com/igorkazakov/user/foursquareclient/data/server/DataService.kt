@@ -21,7 +21,7 @@ class DataService private constructor() {
     private val clientId = "IGHIZ4HGE241PW53BP1JGIYEGD331WPFBMBIAWWVPBORM1WR"
     private val clientSecret = "VQIS3F345XFQRHR004RS2BA4QY2ZG5SEFRFCH4KTSKGXCZUV"
     private val versionApi = "20180323"
-    private val radius = 100.0
+    private val radius = 1000.0
 
     val service: FoursquareApi by lazy {
         Retrofit.Builder()
