@@ -53,14 +53,15 @@ abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManag
             val minDistance = 100f
 
             when {
-                mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
-                    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+
+                mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
+                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                             minTime,
                             minDistance,
                             mLocationListener)
 
-                mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
-                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
+                    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                             minTime,
                             minDistance,
                             mLocationListener)

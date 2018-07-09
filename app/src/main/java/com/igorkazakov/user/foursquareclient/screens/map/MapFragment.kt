@@ -24,6 +24,8 @@ import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 import javax.inject.Inject
 
 
+
+
 class MapFragment : MvpAppCompatFragment(), MapFragmentInterface, OnMapReadyCallback {
 
     var mapView: SupportMapFragment? = null
@@ -63,9 +65,28 @@ class MapFragment : MvpAppCompatFragment(), MapFragmentInterface, OnMapReadyCall
 
     override fun showMyLocation(latLng: Location) {
         map?.let {
-            val ll = LatLng(latLng.latitude, latLng.longitude)
-            it.addMarker(MarkerOptions().position(ll).title("i'm here!"))
-            it.moveCamera(CameraUpdateFactory.newLatLng(ll))
+//            val ll = LatLng(latLng.latitude, latLng.longitude)
+//            it.addMarker(MarkerOptions().position(ll).title("i'm here!"))
+//            it.moveCamera(CameraUpdateFactory.newLatLng(ll))
+
+
+
+            it.setMinZoomPreference(13f)
+            it.setIndoorEnabled(true)
+            val uiSettings = it.getUiSettings()
+            uiSettings.setIndoorLevelPickerEnabled(true)
+            uiSettings.setMyLocationButtonEnabled(true)
+            uiSettings.setMapToolbarEnabled(true)
+            uiSettings.setCompassEnabled(true)
+            uiSettings.setZoomControlsEnabled(true)
+
+            val ny = LatLng(latLng.latitude, latLng.longitude)
+
+            val markerOptions = MarkerOptions()
+            markerOptions.position(ny)
+            it.addMarker(markerOptions)
+
+            it.moveCamera(CameraUpdateFactory.newLatLng(ny))
         }
     }
 
