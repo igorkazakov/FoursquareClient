@@ -7,23 +7,15 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 
-class PermissionUtils {
+object PermissionUtils {
 
-    private object HOLDER {
-        val INSTANCE = PermissionUtils()
-    }
+    const val REQUEST_CODE_ACCESS_COARSE_LOCATION = 1
+    const val REQUEST_CODE_ACCESS_FINE_LOCATION = 2
 
-    companion object {
-        val instance: PermissionUtils by lazy { HOLDER.INSTANCE }
+    const val ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION
+    const val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 
-        val REQUEST_CODE_ACCESS_COARSE_LOCATION = 1
-        val REQUEST_CODE_ACCESS_FINE_LOCATION = 2
-
-        val ACCESS_COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION
-        val ACCESS_FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
-    }
-
-    private val errorAccessLocation = "Требуется разрешение на определение местоположения"
+    private const val ERROR_ACCESS_LOCATION = "Требуется разрешение на определение местоположения"
 
     fun checkPermission(fragment: Fragment, permission: String, requestCode: Int): Boolean {
 
@@ -37,8 +29,8 @@ class PermissionUtils {
 
                         var message = ""
                         when (permission) {
-                            ACCESS_COARSE_LOCATION -> message = errorAccessLocation
-                            ACCESS_FINE_LOCATION -> message = errorAccessLocation
+                            ACCESS_COARSE_LOCATION -> message = ERROR_ACCESS_LOCATION
+                            ACCESS_FINE_LOCATION -> message = ERROR_ACCESS_LOCATION
                         }
 
                         showDialog(fragment, message, permission, requestCode)

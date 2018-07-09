@@ -16,6 +16,7 @@ import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
 
 class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
 
+
     @BindView(R.id.toolbar)
     lateinit var toolbar: Toolbar
 
@@ -41,7 +42,9 @@ class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
             changeFragment(it.itemId)
             return@setOnNavigationItemSelectedListener true
         }
+    }
 
+    override fun showInitFragment() {
         showOrCreateFragment(ListFragment::class.java)
     }
 

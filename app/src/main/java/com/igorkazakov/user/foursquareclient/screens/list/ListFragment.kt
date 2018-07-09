@@ -17,8 +17,9 @@ import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
-import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.Companion.REQUEST_CODE_ACCESS_COARSE_LOCATION
-import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.Companion.REQUEST_CODE_ACCESS_FINE_LOCATION
+import com.igorkazakov.user.foursquareclient.utils.DialogUtils
+import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.REQUEST_CODE_ACCESS_COARSE_LOCATION
+import com.igorkazakov.user.foursquareclient.utils.PermissionUtils.REQUEST_CODE_ACCESS_FINE_LOCATION
 import javax.inject.Inject
 
 
@@ -34,14 +35,14 @@ class ListFragment : MvpAppCompatFragment(), ListFragmentInterface {
     lateinit var mService: DataService
 
     @Inject
-    lateinit var mLocationManager : LocationManager
+    lateinit var mLocationManager: LocationManager
 
     init {
         MyApplication.appComponent.inject(this)
     }
 
     @ProvidePresenter
-    fun provideListFragmentPresenter() : ListFragmentPresenter {
+    fun provideListFragmentPresenter(): ListFragmentPresenter {
         return ListFragmentPresenter(mService, mLocationManager)
     }
 
@@ -50,11 +51,10 @@ class ListFragment : MvpAppCompatFragment(), ListFragmentInterface {
 
         val view = inflater.inflate(R.layout.fragment_list, container, false)
         ButterKnife.bind(this, view)
+
         val linearLayoutManager = LinearLayoutManager(activity)
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         list.layoutManager = linearLayoutManager
-
-        mPresenter.startLocationUpdates(this)
 
         return view
     }
@@ -64,9 +64,21 @@ class ListFragment : MvpAppCompatFragment(), ListFragmentInterface {
         list.adapter = adapter
     }
 
+    override fun initUpdateLocation() {
+        mPresenter.startLocationUpdates(this)
+    }
+
+    override fun showLocationError() {
+        context?.let {
+            DialogUtils.showErrorDialog(it,
+                    "Внимание",
+                    "Не удалось определить местоположение, включите передачу геоданных")
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int,
-                                   permissions: Array<String>,
-                                   grantResults: IntArray) {
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
 
         if ((requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION ||
                         requestCode == REQUEST_CODE_ACCESS_FINE_LOCATION) &&
