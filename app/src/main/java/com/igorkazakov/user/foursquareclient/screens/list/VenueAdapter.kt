@@ -6,7 +6,12 @@ import android.view.ViewGroup
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 
-class VenueAdapter(val list: List<VenueViewModel>) : RecyclerView.Adapter<VenueViewHolder>() {
+class VenueAdapter(val list: List<VenueViewModel>,
+                   private val mListener: VenueAdapterListener?) : RecyclerView.Adapter<VenueViewHolder>() {
+
+    interface VenueAdapterListener {
+        fun venueAdapterItemClick(model: VenueViewModel)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VenueViewHolder {
 
@@ -15,7 +20,11 @@ class VenueAdapter(val list: List<VenueViewModel>) : RecyclerView.Adapter<VenueV
                 parent,
                 false)
 
-        return VenueViewHolder(view, context)
+        return VenueViewHolder(view, object : VenueViewHolder.VenueViewHolderListener {
+            override fun viewHolderClick(model: VenueViewModel) {
+                mListener?.venueAdapterItemClick(model)
+            }
+        })
     }
 
     override fun getItemCount(): Int {

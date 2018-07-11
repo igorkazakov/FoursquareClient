@@ -1,14 +1,12 @@
-package com.igorkazakov.user.foursquareclient.screens.base
+package com.igorkazakov.user.foursquareclient.screens.venue
 
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.SkipStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 
-interface BaseMapInterface : MvpView {
-
-    @StateStrategyType(value = SkipStrategy::class)
-    fun showLocationError()
+interface VenueInterface : MvpView {
 
     @StateStrategyType(value = SkipStrategy::class)
-    fun initUpdateLocation()
+    fun initView(model: VenueViewModel)
 }

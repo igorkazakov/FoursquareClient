@@ -1,5 +1,6 @@
 package com.igorkazakov.user.foursquareclient.data.server
 
+import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -21,7 +22,7 @@ class DataService private constructor() {
     private val clientId = "IGHIZ4HGE241PW53BP1JGIYEGD331WPFBMBIAWWVPBORM1WR"
     private val clientSecret = "VQIS3F345XFQRHR004RS2BA4QY2ZG5SEFRFCH4KTSKGXCZUV"
     private val versionApi = "20180323"
-    private val radius = 1000.0
+    private val radius = 500.0
 
     val service: FoursquareApi by lazy {
         Retrofit.Builder()
@@ -41,6 +42,22 @@ class DataService private constructor() {
                     it.response?.groups?.get(0)?.items?.forEach {
                         it.venue?.let {
                             models.add(VenueViewModel(it))
+                        }
+                    }
+
+                    Observable.fromArray(models)
+                }
+    }
+
+    fun loadVenues(latitudeLongitude: String) : Observable<List<Venue>> {
+
+        return service.venueRecommendations(clientId, clientSecret, radius, latitudeLongitude, versionApi)
+                .subscribeOn(Schedulers.io())
+                .flatMap {
+                    val models = mutableListOf<Venue>()
+                    it.response?.groups?.get(0)?.items?.forEach {
+                        it.venue?.let {
+                            models.add(it)
                         }
                     }
 

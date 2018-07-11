@@ -4,7 +4,8 @@ import android.location.Location
 import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.igorkazakov.user.foursquareclient.data.server.DataService
-import com.igorkazakov.user.foursquareclient.screens.base.BaseMapPresenter
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 
@@ -17,19 +18,21 @@ class ListFragmentPresenter(private val mService: DataService,
         loadData(locationToString(location))
     }
 
-    fun locationToString(location: Location): String {
-        return "${location.latitude}, ${location.longitude}"
-    }
-
     private fun loadData(latLng: String) {
 
         mService.loadVenueRecommendations(latLng)
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe{ viewState.showLoading() }
+                .doOnTerminate { viewState.hideLoading() }
                 .subscribe({
                     viewState.showVenues(it)
 
                 }, {
                     it.printStackTrace()
                 })
+    }
+
+    fun showVenueDetail(model: VenueViewModel) {
+        viewState.showVenueActivity(model)
     }
 }

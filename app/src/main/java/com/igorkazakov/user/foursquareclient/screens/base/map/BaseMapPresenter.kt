@@ -1,4 +1,4 @@
-package com.igorkazakov.user.foursquareclient.screens.base
+package com.igorkazakov.user.foursquareclient.screens.base.map
 
 import android.location.Criteria
 import android.location.Location
@@ -22,22 +22,15 @@ abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManag
         override fun onProviderDisabled(provider: String) {}
     }
 
-    override fun attachView(view: T) {
-        super.attachView(view)
-        viewState.initUpdateLocation()
-    }
-
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-
-
+        viewState.initUpdateLocation()
     }
 
     abstract fun locationChanged(location: Location)
 
-    override fun detachView(view: T?) {
-        super.detachView(view)
-        stopLocationUpdates()
+    fun locationToString(location: Location): String {
+        return "${location.latitude}, ${location.longitude}"
     }
 
     fun startLocationUpdates(fragment: Fragment) {

@@ -1,6 +1,5 @@
 package com.igorkazakov.user.foursquareclient.screens.map
 
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -8,31 +7,37 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import butterknife.ButterKnife
-import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.utils.DialogUtils
-import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
+import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.server.model.Venue
+import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
+import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
 import javax.inject.Inject
 
 
 
 
-class MapFragment : MvpAppCompatFragment(), MapFragmentInterface, OnMapReadyCallback {
+class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback {
 
     var mapView: SupportMapFragment? = null
     var map: GoogleMap? = null
 
     @InjectPresenter
     lateinit var mPresenter: MapFragmentPresenter
+
+    @Inject
+    lateinit var mService: DataService
 
     @Inject
     lateinit var mLocationManager: LocationManager
@@ -42,12 +47,18 @@ class MapFragment : MvpAppCompatFragment(), MapFragmentInterface, OnMapReadyCall
     }
 
     @ProvidePresenter
-    fun provideMapFragmentPresenter() : MapFragmentPresenter {
-        return MapFragmentPresenter(mLocationManager)
+    fun provideMapFragmentPresenter(): MapFragmentPresenter {
+        return MapFragmentPresenter(mService, mLocationManager)
+    }
+
+    override fun createPresenter(): BaseMapPresenter<*> {
+        return mPresenter
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         ButterKnife.bind(this, view)
 
@@ -60,62 +71,56 @@ class MapFragment : MvpAppCompatFragment(), MapFragmentInterface, OnMapReadyCall
     override fun onMapReady(googleMap: GoogleMap?) {
         map = googleMap
 
+        map?.let {
+            it.setMinZoomPreference(13f)
+            val uiSettings = it.uiSettings
+            uiSettings.isZoomControlsEnabled = true
+        }
+
         mPresenter.setMapReady(true)
     }
 
     override fun showMyLocation(latLng: Location) {
         map?.let {
-//            val ll = LatLng(latLng.latitude, latLng.longitude)
-//            it.addMarker(MarkerOptions().position(ll).title("i'm here!"))
-//            it.moveCamera(CameraUpdateFactory.newLatLng(ll))
-
-
-
-            it.setMinZoomPreference(13f)
-            it.setIndoorEnabled(true)
-            val uiSettings = it.getUiSettings()
-            uiSettings.setIndoorLevelPickerEnabled(true)
-            uiSettings.setMyLocationButtonEnabled(true)
-            uiSettings.setMapToolbarEnabled(true)
-            uiSettings.setCompassEnabled(true)
-            uiSettings.setZoomControlsEnabled(true)
 
             val ny = LatLng(latLng.latitude, latLng.longitude)
-
             val markerOptions = MarkerOptions()
             markerOptions.position(ny)
             it.addMarker(markerOptions)
-
-            it.moveCamera(CameraUpdateFactory.newLatLng(ny))
         }
     }
 
-    override fun initUpdateLocation() {
-        mPresenter.startLocationUpdates(this)
-    }
+    override fun showVenuesOnMap(venues: List<Venue>) {
 
-    override fun showLocationError() {
-        context?.let {
-            DialogUtils.showErrorDialog(it,
-                    "Внимание",
-                    "Не удалось определить местоположение, включите передачу геоданных")
-        }
-    }
+        map?.let {
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
+            val builder = LatLngBounds.Builder()
 
-        if ((requestCode == PermissionUtils.REQUEST_CODE_ACCESS_COARSE_LOCATION ||
-                        requestCode == PermissionUtils.REQUEST_CODE_ACCESS_FINE_LOCATION) &&
+            venues.forEach { venue: Venue ->
 
-                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                val latitude = venue.location?.lat
+                val longitude = venue.location?.lng
 
-            mPresenter.startLocationUpdates(this)
+                if (latitude != null && longitude != null) {
 
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions,
-                    grantResults)
+                    val ll = LatLng(latitude, longitude)
+                    builder.include(ll)
+
+                    val markerOptions = MarkerOptions()
+                    markerOptions.position(ll)
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_venue_marker_icon))
+                    markerOptions.title(venue.name)
+                    it.addMarker(markerOptions)
+                }
+            }
+
+            val width = resources.displayMetrics.widthPixels
+            val height = resources.displayMetrics.heightPixels
+            val padding = (width * 0.12).toInt()
+
+            val cameraUpdate = CameraUpdateFactory
+                    .newLatLngBounds(builder.build(), width, height, padding)
+            it.moveCamera(cameraUpdate)
         }
     }
 }
