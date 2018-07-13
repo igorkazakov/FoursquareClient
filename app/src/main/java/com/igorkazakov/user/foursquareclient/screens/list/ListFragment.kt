@@ -1,7 +1,9 @@
 package com.igorkazakov.user.foursquareclient.screens.list
 
-import android.location.LocationManager
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,44 +11,42 @@ import android.view.View
 import android.view.ViewGroup
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.igorkazakov.user.foursquareclient.R
-import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
+import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import com.igorkazakov.user.foursquareclient.screens.venue.VenueActivity
-import javax.inject.Inject
+import com.igorkazakov.user.foursquareclient.screens.viewModel.ListFragmentViewModel
+import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
 
-class ListFragment : BaseMapFragment(), ListFragmentInterface {
+class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface {
 
     @BindView(R.id.listView)
     lateinit var list: RecyclerView
 
-    @InjectPresenter
-    lateinit var mPresenter: ListFragmentPresenter
+    //@InjectPresenter
+    //lateinit var mPresenter: ListFragmentPresenter
 
-    @Inject
-    lateinit var mService: DataService
+    //@Inject
+    //lateinit var mService: DataService
 
-    @Inject
-    lateinit var mLocationManager: LocationManager
+    //@Inject
+    //lateinit var mLocationManager: LocationManager
 
-    init {
-        MyApplication.appComponent.inject(this)
-    }
+//    init {
+//        MyApplication.appComponent.inject(this)
+//    }
 
-    @ProvidePresenter
-    fun provideListFragmentPresenter(): ListFragmentPresenter {
-        return ListFragmentPresenter(mService, mLocationManager)
-    }
+    //@ProvidePresenter
+    //fun provideListFragmentPresenter(): ListFragmentPresenter {
+    //    return ListFragmentPresenter(mService, mLocationManager)
+    //}
 
-    override fun createPresenter(): BaseMapPresenter<*> {
-        return mPresenter
-    }
+    //override fun createPresenter(): BaseMapPresenter<*> {
+    //    return mPresenter
+    //}
+
+    lateinit var viewModel: ListFragmentViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -59,21 +59,29 @@ class ListFragment : BaseMapFragment(), ListFragmentInterface {
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         list.layoutManager = linearLayoutManager
 
+        viewModel = ViewModelProviders.of(this, ViewModelFactory()).get(ListFragmentViewModel::class.java)
+        viewModel.startLocationUpdates(this)
+        viewModel.mLocationLiveData.observe(this, Observer<List<VenueViewModel>> {
+
+            showVenues(it!!)
+        })
+
         return view
     }
 
-    override fun showVenues(venues: List<VenueViewModel>) {
+    private fun showVenues(venues: List<VenueViewModel>) {
 
         val adapter = VenueAdapter(venues, object : VenueAdapter.VenueAdapterListener {
             override fun venueAdapterItemClick(model: VenueViewModel) {
-                mPresenter.showVenueDetail(model)
+                //mPresenter.showVenueDetail(model)
+                showVenueActivity(model)
             }
         })
 
         list.adapter = adapter
     }
 
-    override fun showVenueActivity(model: VenueViewModel) {
+    fun showVenueActivity(model: VenueViewModel) {
 
         activity?.let {
             VenueActivity.launch(it, model)

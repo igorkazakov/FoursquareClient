@@ -24,7 +24,7 @@ class DataService private constructor() {
     private val versionApi = "20180323"
     private val radius = 500.0
 
-    val service: FoursquareApi by lazy {
+    private val service: FoursquareApi by lazy {
         Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())

@@ -6,6 +6,7 @@ import com.igorkazakov.user.foursquareclient.di.module.ApplicationModule
 import com.igorkazakov.user.foursquareclient.di.module.DataServiceModule
 import com.igorkazakov.user.foursquareclient.screens.list.ListFragment
 import com.igorkazakov.user.foursquareclient.screens.map.MapFragment
+import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 import dagger.Component
 import javax.inject.Singleton
 
@@ -17,4 +18,5 @@ interface ApplicationComponent {
     fun inject(application: MyApplication)
     fun inject(listFragment: ListFragment)
     fun inject(mapFragment: MapFragment)
+    fun inject(viewModelFactory: ViewModelFactory)
 }
