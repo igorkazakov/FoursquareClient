@@ -41,5 +41,4 @@ class ListFragmentViewModel(application: MyApplication,
                     it.printStackTrace()
                 })
     }
-
 }

@@ -1,30 +1,26 @@
 package com.igorkazakov.user.foursquareclient.screens.list
 
+import android.databinding.DataBindingUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.databinding.ItemVenueBinding
 
 class VenueAdapter(val list: List<VenueViewModel>,
-                   private val mListener: VenueAdapterListener?) : RecyclerView.Adapter<VenueViewHolder>() {
-
-    interface VenueAdapterListener {
-        fun venueAdapterItemClick(model: VenueViewModel)
-    }
+                   private val mListener: ListFragment.VenueAdapterListener) : RecyclerView.Adapter<VenueViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VenueViewHolder {
 
-        val context = parent.context
-        val view = LayoutInflater.from(context).inflate(R.layout.item_venue,
+        val binding: ItemVenueBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context),
+                R.layout.item_venue,
                 parent,
                 false)
 
-        return VenueViewHolder(view, object : VenueViewHolder.VenueViewHolderListener {
-            override fun viewHolderClick(model: VenueViewModel) {
-                mListener?.venueAdapterItemClick(model)
-            }
-        })
+        binding.itemClickListener = mListener
+
+        return VenueViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -32,6 +28,7 @@ class VenueAdapter(val list: List<VenueViewModel>,
     }
 
     override fun onBindViewHolder(holder: VenueViewHolder, position: Int) {
-        holder.bind(list[position])
+        holder.binding.venueViewModel = list[position]
+        holder.binding.executePendingBindings()
     }
 }

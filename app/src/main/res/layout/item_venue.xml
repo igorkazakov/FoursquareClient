@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="10dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="venueViewModel"
+            type="com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel"/>
+        <variable
+            name="itemClickListener"
+            type="com.igorkazakov.user.foursquareclient.screens.list.ListFragment.VenueAdapterListener"/>
+    </data>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:onClick="@{it -> itemClickListener.itemClick(venueViewModel)}">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_marginTop="8dp"
-            android:text="Russ and Daughters"
+            android:text="@{venueViewModel.name}"
             android:textSize="16sp" />
 
         <TextView
@@ -26,7 +38,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:text="Distance: 130" />
+            android:text="@{venueViewModel.distance}" />
 
         <TextView
             android:id="@+id/addressText"
@@ -35,7 +47,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
-            android:text="City: New York" />
+            android:text="@{venueViewModel.address}" />
 
 
         <View
@@ -53,10 +65,11 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="This spot is popular" />
+            android:text="@{venueViewModel.category}" />
 
 
     </LinearLayout>
 
 
 </android.support.v7.widget.CardView>
+</layout>

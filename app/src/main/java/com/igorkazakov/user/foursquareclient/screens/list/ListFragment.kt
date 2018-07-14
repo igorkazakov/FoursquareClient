@@ -3,7 +3,6 @@ package com.igorkazakov.user.foursquareclient.screens.list
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -13,6 +12,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.databinding.FragmentListBinding
 import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import com.igorkazakov.user.foursquareclient.screens.venue.VenueActivity
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ListFragmentViewModel
@@ -21,8 +21,19 @@ import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
 class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface {
 
+
+    interface VenueAdapterListener {
+        fun itemClick(model: VenueViewModel)
+    }
+
+    private val mVenueAdapterListener = object : VenueAdapterListener {
+        override fun itemClick(model: VenueViewModel) {
+            showVenueActivity(model)
+        }
+    }
+
     @BindView(R.id.listView)
-    lateinit var list: RecyclerView
+    lateinit var listView: RecyclerView
 
     //@InjectPresenter
     //lateinit var mPresenter: ListFragmentPresenter
@@ -47,6 +58,7 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
     //}
 
     lateinit var viewModel: ListFragmentViewModel
+    //lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -57,7 +69,7 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
 
         val linearLayoutManager = LinearLayoutManager(activity)
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-        list.layoutManager = linearLayoutManager
+        listView.layoutManager = linearLayoutManager
 
         viewModel = ViewModelProviders.of(this, ViewModelFactory()).get(ListFragmentViewModel::class.java)
         viewModel.startLocationUpdates(this)
@@ -71,14 +83,8 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
 
     private fun showVenues(venues: List<VenueViewModel>) {
 
-        val adapter = VenueAdapter(venues, object : VenueAdapter.VenueAdapterListener {
-            override fun venueAdapterItemClick(model: VenueViewModel) {
-                //mPresenter.showVenueDetail(model)
-                showVenueActivity(model)
-            }
-        })
-
-        list.adapter = adapter
+        val adapter = VenueAdapter(venues, mVenueAdapterListener)
+        listView.adapter = adapter
     }
 
     fun showVenueActivity(model: VenueViewModel) {
