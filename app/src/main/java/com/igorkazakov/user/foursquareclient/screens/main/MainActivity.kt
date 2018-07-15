@@ -23,13 +23,13 @@ class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
     @BindView(R.id.bottom_navigation)
     lateinit var bottomNavigation: BottomNavigationViewEx
 
-    @InjectPresenter
-    lateinit var mPresenter: MainActivityPresenter
-
-    @ProvidePresenter
-    fun provideLoginPresenter() : MainActivityPresenter {
-        return MainActivityPresenter()
-    }
+//    @InjectPresenter
+//    lateinit var mPresenter: MainActivityPresenter
+//
+//    @ProvidePresenter
+//    fun provideLoginPresenter() : MainActivityPresenter {
+//        return MainActivityPresenter()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +42,12 @@ class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
             changeFragment(it.itemId)
             return@setOnNavigationItemSelectedListener true
         }
+
+        showOrCreateFragment(ListFragment::class.java)
     }
 
     override fun showInitFragment() {
-        showOrCreateFragment(ListFragment::class.java)
+       // showOrCreateFragment(ListFragment::class.java)
     }
 
     private fun changeFragment(id: Int) {

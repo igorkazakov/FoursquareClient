@@ -22,10 +22,10 @@ abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManag
         override fun onProviderDisabled(provider: String) {}
     }
 
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-        viewState.initUpdateLocation()
-    }
+//    override fun onFirstViewAttach() {
+//        super.onFirstViewAttach()
+//        viewState.initUpdateLocation()
+//    }
 
     abstract fun locationChanged(location: Location)
 

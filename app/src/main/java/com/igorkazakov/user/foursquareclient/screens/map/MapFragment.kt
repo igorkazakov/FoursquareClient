@@ -51,9 +51,9 @@ class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback 
         return MapFragmentPresenter(mService, mLocationManager)
     }
 
-    override fun createPresenter(): BaseMapPresenter<*> {
-        return mPresenter
-    }
+//    override fun createPresenter(): BaseMapPresenter<*> {
+//        return mPresenter
+//    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

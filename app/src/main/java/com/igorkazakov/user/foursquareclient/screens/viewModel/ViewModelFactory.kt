@@ -26,10 +26,17 @@ class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
 
     @NonNull
     override fun <T : ViewModel> create(@NonNull modelClass: Class<T>): T {
-        return if (modelClass == ListFragmentViewModel::class.java) {
-            ListFragmentViewModel(mApplication, mLocationManager) as T
-        } else {
-            ViewModelFactory() as T
+        return when (modelClass) {
+
+            ListFragmentViewModel::class.java -> ListFragmentViewModel(mApplication) as T
+
+            LocationViewModel::class.java -> LocationViewModel(mApplication, mLocationManager) as T
+
+            LoadingViewModel::class.java -> LoadingViewModel(mApplication) as T
+
+            else -> {
+                ViewModelFactory() as T
+            }
         }
     }
 }

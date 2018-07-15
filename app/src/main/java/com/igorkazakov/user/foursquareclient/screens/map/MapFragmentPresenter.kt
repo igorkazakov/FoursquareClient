@@ -34,8 +34,8 @@ class MapFragmentPresenter(private val mService: DataService,
 
         mService.loadVenues(latLng)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe{ viewState.showLoading() }
-                .doOnTerminate { viewState.hideLoading() }
+                //.doOnSubscribe{ viewState.showLoading() }
+                //.doOnTerminate { viewState.hideLoading() }
                 .subscribe({
                     viewState.showVenuesOnMap(it)
 

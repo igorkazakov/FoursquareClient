@@ -1,41 +1,41 @@
 package com.igorkazakov.user.foursquareclient.screens.viewModel
 
+import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.location.Location
-import android.location.LocationManager
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.utils.LocationUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-class ListFragmentViewModel(application: MyApplication,
-                            locationManager: LocationManager) : BaseMapViewModel(application, locationManager) {
+class ListFragmentViewModel(application: MyApplication) : AndroidViewModel(application) {
 
-    var mLocationLiveData: MutableLiveData<List<VenueViewModel>> = MutableLiveData()
+    var venuesLiveData: MutableLiveData<List<VenueViewModel>> = MutableLiveData()
 
 //    fun getLocationLiveData() {
 //
-//        if (mLocationLiveData == null) {
-//            mLocationLiveData = MutableLiveData()
+//        if (locationLiveData == null) {
+//            locationLiveData = MutableLiveData()
 //
 //        }
 //
 //
 //    }
 
-    override fun locationChanged(location: Location) {
-        loadData(locationToString(location))
-    }
+//    override fun locationChanged(location: Location) {
+//        loadData(locationToString(location))
+//    }
 
-    private fun loadData(latLng: String) {
+    fun loadData(location: Location) {
 
-        DataService.instance.loadVenueRecommendations(latLng)
+        DataService.instance.loadVenueRecommendations(LocationUtils.locationToString(location))
                 .observeOn(AndroidSchedulers.mainThread())
-                //.doOnSubscribe{ viewState.showLoading() }
-                //.doOnTerminate { viewState.hideLoading() }
+                //.doOnSubscribe{ showLoading() }
+                //.doOnTerminate { hideLoading() }
                 .subscribe({
                     //viewState.showVenues(it)
-                    mLocationLiveData.value = it
+                    venuesLiveData.value = it
 
                 }, {
                     it.printStackTrace()

@@ -2,7 +2,9 @@ package com.igorkazakov.user.foursquareclient.screens.list
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.location.Location
 import android.os.Bundle
+import android.support.annotation.MainThread
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -12,14 +14,13 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
-import com.igorkazakov.user.foursquareclient.databinding.FragmentListBinding
-import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
+import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
 import com.igorkazakov.user.foursquareclient.screens.venue.VenueActivity
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ListFragmentViewModel
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
 
-class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface {
+class ListFragment : BaseMapFragment() {
 
 
     interface VenueAdapterListener {
@@ -35,29 +36,8 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
     @BindView(R.id.listView)
     lateinit var listView: RecyclerView
 
-    //@InjectPresenter
-    //lateinit var mPresenter: ListFragmentPresenter
+    lateinit var listFragmentViewModel: ListFragmentViewModel
 
-    //@Inject
-    //lateinit var mService: DataService
-
-    //@Inject
-    //lateinit var mLocationManager: LocationManager
-
-//    init {
-//        MyApplication.appComponent.inject(this)
-//    }
-
-    //@ProvidePresenter
-    //fun provideListFragmentPresenter(): ListFragmentPresenter {
-    //    return ListFragmentPresenter(mService, mLocationManager)
-    //}
-
-    //override fun createPresenter(): BaseMapPresenter<*> {
-    //    return mPresenter
-    //}
-
-    lateinit var viewModel: ListFragmentViewModel
     //lateinit var binding: FragmentListBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -71,11 +51,24 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         listView.layoutManager = linearLayoutManager
 
-        viewModel = ViewModelProviders.of(this, ViewModelFactory()).get(ListFragmentViewModel::class.java)
-        viewModel.startLocationUpdates(this)
-        viewModel.mLocationLiveData.observe(this, Observer<List<VenueViewModel>> {
+
+
+        listFragmentViewModel = ViewModelProviders.of(this, ViewModelFactory())
+                .get(ListFragmentViewModel::class.java)
+
+        locationViewModel.locationLiveData.observe(this, Observer<Location> {
+
+            if (it == null) {
+                showLoading()
+            } else {
+                listFragmentViewModel.loadData(it)
+            }
+        })
+
+        listFragmentViewModel.venuesLiveData.observe(this, Observer {
 
             showVenues(it!!)
+            hideLoading()
         })
 
         return view
@@ -90,7 +83,8 @@ class ListFragment : BaseFragment() {//BaseMapFragment(), ListFragmentInterface 
     fun showVenueActivity(model: VenueViewModel) {
 
         activity?.let {
-            VenueActivity.launch(it, model)
+           // VenueActivity.launch(it, model)
+            showLoading()
         }
     }
 }

@@ -9,6 +9,6 @@ interface BaseMapInterface : MvpView {
     @StateStrategyType(value = SkipStrategy::class)
     fun showLocationError()
 
-    @StateStrategyType(value = SkipStrategy::class)
-    fun initUpdateLocation()
+//    @StateStrategyType(value = SkipStrategy::class)
+//    fun initUpdateLocation()
 }
