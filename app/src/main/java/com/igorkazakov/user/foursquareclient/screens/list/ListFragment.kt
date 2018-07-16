@@ -4,7 +4,6 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.location.Location
 import android.os.Bundle
-import android.support.annotation.MainThread
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -22,7 +21,6 @@ import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
 class ListFragment : BaseMapFragment() {
 
-
     interface VenueAdapterListener {
         fun itemClick(model: VenueViewModel)
     }
@@ -36,9 +34,7 @@ class ListFragment : BaseMapFragment() {
     @BindView(R.id.listView)
     lateinit var listView: RecyclerView
 
-    lateinit var listFragmentViewModel: ListFragmentViewModel
-
-    //lateinit var binding: FragmentListBinding
+    private lateinit var listFragmentViewModel: ListFragmentViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -51,17 +47,16 @@ class ListFragment : BaseMapFragment() {
         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
         listView.layoutManager = linearLayoutManager
 
-
-
         listFragmentViewModel = ViewModelProviders.of(this, ViewModelFactory())
                 .get(ListFragmentViewModel::class.java)
 
         locationViewModel.locationLiveData.observe(this, Observer<Location> {
 
-            if (it == null) {
-                showLoading()
-            } else {
-                listFragmentViewModel.loadData(it)
+            it?.let {
+                if (listFragmentViewModel.isLocationChanged(it)) {
+                    showLoading()
+                    listFragmentViewModel.loadData(it)
+                }
             }
         })
 
@@ -83,8 +78,7 @@ class ListFragment : BaseMapFragment() {
     fun showVenueActivity(model: VenueViewModel) {
 
         activity?.let {
-           // VenueActivity.launch(it, model)
-            showLoading()
+            VenueActivity.launch(it, model)
         }
     }
 }

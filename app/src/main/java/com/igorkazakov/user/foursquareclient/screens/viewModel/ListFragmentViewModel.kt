@@ -12,29 +12,27 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 class ListFragmentViewModel(application: MyApplication) : AndroidViewModel(application) {
 
     var venuesLiveData: MutableLiveData<List<VenueViewModel>> = MutableLiveData()
+    var
+    private var mLocation: Location? = null
 
-//    fun getLocationLiveData() {
-//
-//        if (locationLiveData == null) {
-//            locationLiveData = MutableLiveData()
-//
-//        }
-//
-//
-//    }
+    fun isLocationChanged(location: Location): Boolean {
 
-//    override fun locationChanged(location: Location) {
-//        loadData(locationToString(location))
-//    }
+        var result = true
+
+        mLocation?.let {
+            result = location.distanceTo(it) >= 100
+        }
+
+        mLocation = location
+        return result
+    }
 
     fun loadData(location: Location) {
 
         DataService.instance.loadVenueRecommendations(LocationUtils.locationToString(location))
                 .observeOn(AndroidSchedulers.mainThread())
-                //.doOnSubscribe{ showLoading() }
-                //.doOnTerminate { hideLoading() }
                 .subscribe({
-                    //viewState.showVenues(it)
+
                     venuesLiveData.value = it
 
                 }, {

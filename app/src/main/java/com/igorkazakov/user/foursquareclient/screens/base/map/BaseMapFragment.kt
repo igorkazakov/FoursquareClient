@@ -4,14 +4,13 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.igorkazakov.user.foursquareclient.data.common.ErrorModel
 import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import com.igorkazakov.user.foursquareclient.screens.viewModel.LocationViewModel
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
-import com.igorkazakov.user.foursquareclient.utils.DialogUtils
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 
 open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
@@ -30,7 +29,9 @@ open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
         locationViewModel.startLocationUpdates(this)
         locationViewModel.locationErrorLiveData.observe(this, Observer {
 
-            showLocationError()
+            showError(ErrorModel(
+                    "Внимание",
+                    "Не удалось определить местоположение, включите передачу геоданных"))
         })
 
         return super.onCreateView(inflater, container, savedInstanceState)
@@ -40,13 +41,13 @@ open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
 //        mPresenter?.startLocationUpdates(this)
 //    }
 
-    fun showLocationError() {
-        context?.let {
-            DialogUtils.showErrorDialog(it,
-                    "Внимание",
-                    "Не удалось определить местоположение, включите передачу геоданных")
-        }
-    }
+//    fun showLocationError() {
+//        context?.let {
+//            DialogUtils.showErrorDialog(it,
+//                    "Внимание",
+//                    "Не удалось определить местоположение, включите передачу геоданных")
+//        }
+//    }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,

@@ -1,7 +1,6 @@
 package com.igorkazakov.user.foursquareclient.screens.viewModel
 
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.MutableLiveData
 import android.location.Criteria
 import android.location.Location
@@ -16,14 +15,13 @@ class LocationViewModel(application: MyApplication,
                                  private val mLocationManager: LocationManager) : AndroidViewModel(application) {
 
     val locationErrorLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    var locationLiveData: MediatorLiveData<Location> = MediatorLiveData()
+    var locationLiveData: MutableLiveData<Location> = MutableLiveData()
 
-    init {
-        locationLiveData.value = null
-        locationLiveData.addSource(MutableLiveData<Location>(), locationLiveData::setValue)
-    }
+    private val MIN_TIME = 9999L
+    private val MIN_DISTANCE = 100f
 
     private var mLocationUpdatesInProgress: Boolean = false
+
     private val mLocationListener: LocationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
@@ -48,21 +46,18 @@ class LocationViewModel(application: MyApplication,
                                PermissionUtils.ACCESS_FINE_LOCATION,
                                PermissionUtils.REQUEST_CODE_ACCESS_FINE_LOCATION)) {
 
-                   val minTime = 9999L
-                   val minDistance = 100f
-
                    when {
 
                        mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
                            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                   minTime,
-                                   minDistance,
+                                   MIN_TIME,
+                                   MIN_DISTANCE,
                                    mLocationListener)
 
                        mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
                            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                                   minTime,
-                                   minDistance,
+                                   MIN_TIME,
+                                   MIN_DISTANCE,
                                    mLocationListener)
 
                        else -> {

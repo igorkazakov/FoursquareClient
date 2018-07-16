@@ -5,8 +5,10 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.igorkazakov.user.foursquareclient.data.common.ErrorModel
 import com.igorkazakov.user.foursquareclient.screens.progress.FragmentProgress
 import com.igorkazakov.user.foursquareclient.screens.progress.LoadingInterface
+import com.igorkazakov.user.foursquareclient.utils.DialogUtils
 
 open class BaseFragment : Fragment() {
 
@@ -34,5 +36,11 @@ open class BaseFragment : Fragment() {
 
     fun hideLoading() {
         mProgress?.hideLoading()
+    }
+
+    fun showError(model: ErrorModel) {
+        context?.let {
+            DialogUtils.showErrorDialog(it, model)
+        }
     }
 }
