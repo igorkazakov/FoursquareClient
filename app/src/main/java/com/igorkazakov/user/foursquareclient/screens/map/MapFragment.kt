@@ -1,14 +1,13 @@
 package com.igorkazakov.user.foursquareclient.screens.map
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
+import android.databinding.DataBindingUtil
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -18,54 +17,35 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.igorkazakov.user.foursquareclient.R
-import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
+import com.igorkazakov.user.foursquareclient.databinding.FragmentMapBinding
 import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
-import javax.inject.Inject
+import com.igorkazakov.user.foursquareclient.screens.viewModel.MapFragmentVewModel
+import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
+class MapFragment : BaseMapFragment(), OnMapReadyCallback {
 
-
-
-class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback {
-
-    var mapView: SupportMapFragment? = null
-    var map: GoogleMap? = null
-
-    @InjectPresenter
-    lateinit var mPresenter: MapFragmentPresenter
-
-    @Inject
-    lateinit var mService: DataService
-
-    @Inject
-    lateinit var mLocationManager: LocationManager
-
-    init {
-        MyApplication.appComponent.inject(this)
-    }
-
-    @ProvidePresenter
-    fun provideMapFragmentPresenter(): MapFragmentPresenter {
-        return MapFragmentPresenter(mService, mLocationManager)
-    }
-
-//    override fun createPresenter(): BaseMapPresenter<*> {
-//        return mPresenter
-//    }
+    private var mapView: SupportMapFragment? = null
+    private var map: GoogleMap? = null
+    private lateinit var mapFragmentViewModel: MapFragmentVewModel
+    private lateinit var fragmentMapBinding: FragmentMapBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        val view = inflater.inflate(R.layout.fragment_map, container, false)
-        ButterKnife.bind(this, view)
+        fragmentMapBinding = DataBindingUtil.inflate(inflater,
+                R.layout.fragment_map,
+                container,
+                false)
 
         mapView = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapView?.getMapAsync(this)
 
-        return view
+        mapFragmentViewModel = ViewModelProviders.of(this, ViewModelFactory())
+                .get(MapFragmentVewModel::class.java)
+
+        return fragmentMapBinding.root
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {
@@ -77,10 +57,24 @@ class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback 
             uiSettings.isZoomControlsEnabled = true
         }
 
-        mPresenter.setMapReady(true)
+        mapFragmentViewModel.venuesLiveData.observe(this, Observer {
+
+            showVenuesOnMap(it!!)
+            hideLoading()
+        })
+
+        locationViewModel.locationLiveData.observe(this, Observer<Location> {
+
+            if (locationViewModel.isLocationChanged(it!!)) {
+                showLoading()
+                mapFragmentViewModel.loadData(it)
+            }
+
+            showMyLocation(it)
+        })
     }
 
-    override fun showMyLocation(latLng: Location) {
+    private fun showMyLocation(latLng: Location) {
         map?.let {
 
             val ny = LatLng(latLng.latitude, latLng.longitude)
@@ -90,7 +84,7 @@ class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback 
         }
     }
 
-    override fun showVenuesOnMap(venues: List<Venue>) {
+    private fun showVenuesOnMap(venues: List<Venue>) {
 
         map?.let {
 

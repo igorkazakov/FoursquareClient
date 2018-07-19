@@ -9,6 +9,7 @@ import com.igorkazakov.user.foursquareclient.data.server.DataService
 import javax.inject.Inject
 
 
+@Suppress("UNCHECKED_CAST")
 class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
 
     @Inject
@@ -28,11 +29,11 @@ class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(@NonNull modelClass: Class<T>): T {
         return when (modelClass) {
 
-            ListFragmentViewModel::class.java -> ListFragmentViewModel(mApplication) as T
+            ListFragmentViewModel::class.java -> ListFragmentViewModel(mApplication, mService) as T
 
             LocationViewModel::class.java -> LocationViewModel(mApplication, mLocationManager) as T
 
-            LoadingViewModel::class.java -> LoadingViewModel(mApplication) as T
+            MapFragmentVewModel::class.java -> MapFragmentVewModel(mApplication, mService) as T
 
             else -> {
                 ViewModelFactory() as T

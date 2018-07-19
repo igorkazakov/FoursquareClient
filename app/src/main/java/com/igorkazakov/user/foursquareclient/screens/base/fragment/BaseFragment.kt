@@ -13,19 +13,10 @@ import com.igorkazakov.user.foursquareclient.utils.DialogUtils
 open class BaseFragment : Fragment() {
 
     private var mProgress: LoadingInterface? = null
-    //private lateinit var loadingViewModel: LoadingViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mProgress = FragmentProgress(activity, container)
-
-//        loadingViewModel = ViewModelProviders.of(this, ViewModelFactory())
-//                .get(LoadingViewModel::class.java)
-//
-//        baseViewModel.loadingLiveData.observe(this, Observer {
-//
-//            if (it!!) showLoading() else hideLoading()
-//        })
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }

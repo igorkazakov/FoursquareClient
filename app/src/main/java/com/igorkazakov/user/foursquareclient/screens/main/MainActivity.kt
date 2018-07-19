@@ -1,53 +1,57 @@
 package com.igorkazakov.user.foursquareclient.screens.main
 
+import android.app.Activity
+import android.content.Intent
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.Toolbar
-import butterknife.BindView
-import butterknife.ButterKnife
-import com.arellomobile.mvp.MvpAppCompatActivity
-import com.arellomobile.mvp.presenter.InjectPresenter
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.igorkazakov.user.foursquareclient.R
+import com.igorkazakov.user.foursquareclient.databinding.ActivityMainBinding
+import com.igorkazakov.user.foursquareclient.screens.base.activity.BaseActivity
 import com.igorkazakov.user.foursquareclient.screens.list.ListFragment
 import com.igorkazakov.user.foursquareclient.screens.map.MapFragment
-import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
 
 
-class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
+class MainActivity : BaseActivity() {
 
+    private var mCurrentAction = 0
 
-    @BindView(R.id.toolbar)
-    lateinit var toolbar: Toolbar
+    companion object {
 
-    @BindView(R.id.bottom_navigation)
-    lateinit var bottomNavigation: BottomNavigationViewEx
+        private const val EXTRA_ACTION: String = "EXTRA_ACTION"
 
-//    @InjectPresenter
-//    lateinit var mPresenter: MainActivityPresenter
-//
-//    @ProvidePresenter
-//    fun provideLoginPresenter() : MainActivityPresenter {
-//        return MainActivityPresenter()
-//    }
+        fun launch(parent: Activity, action: Int) {
+
+            val intent = Intent(parent, MainActivity::class.java)
+            intent.putExtra(EXTRA_ACTION, action)
+            parent.startActivity(intent)
+        }
+    }
+
+    private lateinit var activityMainBinding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        ButterKnife.bind(this)
-        setSupportActionBar(toolbar)
 
-        bottomNavigation.setOnNavigationItemSelectedListener {
+        activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setSupportActionBar(activityMainBinding.toolbar)
+
+        activityMainBinding.contentLayout?.bottomNavigation?.setOnNavigationItemSelectedListener {
 
             changeFragment(it.itemId)
             return@setOnNavigationItemSelectedListener true
         }
 
-        showOrCreateFragment(ListFragment::class.java)
+        if (savedInstanceState == null) {
+            changeFragment(intent.getIntExtra(EXTRA_ACTION, 0))
+        } else {
+            changeFragment(savedInstanceState.getInt(EXTRA_ACTION, 0))
+        }
     }
 
-    override fun showInitFragment() {
-       // showOrCreateFragment(ListFragment::class.java)
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putInt(EXTRA_ACTION, mCurrentAction)
     }
 
     private fun changeFragment(id: Int) {
@@ -56,6 +60,8 @@ class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
             R.id.action_list -> showOrCreateFragment(ListFragment::class.java)
             R.id.action_map -> showOrCreateFragment(MapFragment::class.java)
         }
+
+        mCurrentAction = id
     }
 
     private fun showOrCreateFragment(fragmentClass: Class<*>) {

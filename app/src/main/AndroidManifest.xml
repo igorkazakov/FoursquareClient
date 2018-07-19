@@ -22,17 +22,27 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCMMLeqlTkvl_B6YahkA5ROjseJGsFejwk" />
 
-        <activity android:name=".screens.main.MainActivity">
+        <activity
+            android:name=".screens.main.MainActivity"
+            android:theme="@style/AppTheme"/>
+
+        <activity
+            android:name=".screens.venue.VenueActivity"
+            android:label="@string/venue_detail"
+            android:parentActivityName=".screens.main.MainActivity"
+            android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".screens.splashscreen.SplashScreenActivity"
+            android:theme="@style/AppSplashTheme" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".screens.venue.VenueActivity"
-            android:label="@string/venue_detail"
-            android:parentActivityName=".screens.main.MainActivity"
-            android:theme="@style/AppTheme" />
+
     </application>
 
 </manifest>

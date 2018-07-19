@@ -5,20 +5,19 @@ import android.arch.lifecycle.MutableLiveData
 import android.location.Location
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
-import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-class ListFragmentViewModel(application: MyApplication,
-                            private var mService: DataService) : AndroidViewModel(application) {
+class MapFragmentVewModel(application: MyApplication,
+                          private var mService: DataService) : AndroidViewModel(application) {
 
-    var venuesLiveData: MutableLiveData<List<VenueViewModel>> = MutableLiveData()
+    var venuesLiveData: MutableLiveData<List<Venue>> = MutableLiveData()
 
-    fun loadData(location: Location) {
+    fun loadData(latLng: Location) {
 
-        mService.loadVenueRecommendations(location)
+        mService.loadVenues(latLng)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-
                     venuesLiveData.value = it
 
                 }, {

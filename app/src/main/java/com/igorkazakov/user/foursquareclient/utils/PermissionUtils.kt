@@ -62,7 +62,7 @@ object PermissionUtils {
         alertBuilder.setCancelable(true)
         alertBuilder.setTitle("")
         alertBuilder.setMessage(msg)
-        alertBuilder.setPositiveButton(android.R.string.yes) { dialog, which ->
+        alertBuilder.setPositiveButton(android.R.string.yes) { _, _ ->
 
             if (fragment.isAdded) {
                 fragment.requestPermissions(arrayOf(permission), requestCode)

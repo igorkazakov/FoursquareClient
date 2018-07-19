@@ -13,16 +13,11 @@ import com.igorkazakov.user.foursquareclient.screens.viewModel.LocationViewModel
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 
-open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
-
-   // private var mPresenter: BaseMapPresenter<*>? = null
-
-    //abstract fun createPresenter() : BaseMapPresenter<*>
+open class BaseMapFragment : BaseFragment() {
 
     lateinit var locationViewModel: LocationViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-     //   mPresenter = createPresenter()
 
         locationViewModel = ViewModelProviders.of(this, ViewModelFactory()).get(LocationViewModel::class.java)
 
@@ -37,18 +32,6 @@ open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-//    override fun initUpdateLocation() {
-//        mPresenter?.startLocationUpdates(this)
-//    }
-
-//    fun showLocationError() {
-//        context?.let {
-//            DialogUtils.showErrorDialog(it,
-//                    "Внимание",
-//                    "Не удалось определить местоположение, включите передачу геоданных")
-//        }
-//    }
-
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
                                             grantResults: IntArray) {
@@ -58,7 +41,6 @@ open class BaseMapFragment : BaseFragment() {//, BaseMapInterface {
 
                 grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-            //mPresenter?.startLocationUpdates(this)
             locationViewModel.startLocationUpdates(this)
 
         } else {

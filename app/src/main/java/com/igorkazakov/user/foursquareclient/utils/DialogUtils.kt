@@ -13,7 +13,7 @@ object DialogUtils {
         builder.setTitle(model.title)
         builder.setMessage(model.message)
 
-        builder.setPositiveButton("Ok"){ dialog, which ->
+        builder.setPositiveButton("Ok"){ dialog, _ ->
             dialog.dismiss()
         }
 

@@ -1,7 +1,9 @@
 package com.igorkazakov.user.foursquareclient.data.server
 
+import android.location.Location
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.utils.LocationUtils
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
@@ -33,8 +35,9 @@ class DataService private constructor() {
                 .create(FoursquareApi::class.java);
     }
 
-    fun loadVenueRecommendations(latitudeLongitude: String) : Observable<List<VenueViewModel>> {
+    fun loadVenueRecommendations(location: Location) : Observable<List<VenueViewModel>> {
 
+        val latitudeLongitude = LocationUtils.locationToString(location)
         return service.venueRecommendations(clientId, clientSecret, radius, latitudeLongitude, versionApi)
                 .subscribeOn(Schedulers.io())
                 .flatMap {
@@ -49,8 +52,9 @@ class DataService private constructor() {
                 }
     }
 
-    fun loadVenues(latitudeLongitude: String) : Observable<List<Venue>> {
+    fun loadVenues(location: Location) : Observable<List<Venue>> {
 
+        val latitudeLongitude = LocationUtils.locationToString(location)
         return service.venueRecommendations(clientId, clientSecret, radius, latitudeLongitude, versionApi)
                 .subscribeOn(Schedulers.io())
                 .flatMap {
