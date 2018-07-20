@@ -6,11 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.igorkazakov.user.foursquareclient.screens.progress.FragmentProgress
-import com.igorkazakov.user.foursquareclient.screens.progress.LoadingInterface
 
 open class BaseFragment : MvpAppCompatFragment() {
 
-    private var mProgress: LoadingInterface? = null
+    private var mProgress: FragmentProgress? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 

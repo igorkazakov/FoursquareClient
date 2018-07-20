@@ -20,4 +20,5 @@ class ApplicationModule(private val mApplication: MyApplication) {
     @Provides
     fun provideLocationService(context: Context) =
             context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
 }

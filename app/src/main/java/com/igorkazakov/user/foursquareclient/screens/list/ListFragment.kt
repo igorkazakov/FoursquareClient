@@ -15,6 +15,7 @@ import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
+import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
 import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
 import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
 import com.igorkazakov.user.foursquareclient.screens.venue.VenueActivity
@@ -35,13 +36,16 @@ class ListFragment : BaseMapFragment(), ListFragmentInterface {
     @Inject
     lateinit var mLocationManager: LocationManager
 
+    @Inject
+    lateinit var mLocationInteractor: LocationInteractor
+
     init {
         MyApplication.appComponent.inject(this)
     }
 
     @ProvidePresenter
     fun provideListFragmentPresenter(): ListFragmentPresenter {
-        return ListFragmentPresenter(mService, mLocationManager)
+        return ListFragmentPresenter(mService, mLocationManager, mLocationInteractor)
     }
 
     override fun createPresenter(): BaseMapPresenter<*> {

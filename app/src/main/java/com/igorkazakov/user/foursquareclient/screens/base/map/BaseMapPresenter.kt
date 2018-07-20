@@ -11,10 +11,18 @@ import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 
 abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManager: LocationManager) : MvpPresenter<T>() {
 
+    private val MIN_DISTANCE = 100f
+    private val MIN_TIME = 99999L
+    private var myLocation: Location? = null
     private val mLocationListener: LocationListener = object : LocationListener {
 
         override fun onLocationChanged(location: Location) {
-            locationChanged(location)
+
+            if (isLocationChanged(location)) {
+                locationChanged(location)
+            }
+
+            myLocation = location
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -33,6 +41,17 @@ abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManag
         return "${location.latitude}, ${location.longitude}"
     }
 
+    fun isLocationChanged(location: Location) : Boolean {
+
+        var result = true
+
+        myLocation?.let {
+            result = location.distanceTo(it) >= MIN_DISTANCE
+        }
+
+        return result
+    }
+
     fun startLocationUpdates(fragment: Fragment) {
 
         if (PermissionUtils.checkPermission(fragment,
@@ -42,21 +61,18 @@ abstract class BaseMapPresenter<T : BaseMapInterface>(private val mLocationManag
                         PermissionUtils.ACCESS_FINE_LOCATION,
                         PermissionUtils.REQUEST_CODE_ACCESS_FINE_LOCATION)) {
 
-            val minTime = 9999L
-            val minDistance = 100f
-
             when {
 
                 mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                            minTime,
-                            minDistance,
+                            MIN_TIME,
+                            MIN_DISTANCE,
                             mLocationListener)
 
                 mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
                     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                            minTime,
-                            minDistance,
+                            MIN_TIME,
+                            MIN_DISTANCE,
                             mLocationListener)
 
                 else -> viewState.showLocationError()

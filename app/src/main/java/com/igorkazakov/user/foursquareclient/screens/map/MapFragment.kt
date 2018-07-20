@@ -21,14 +21,14 @@ import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
+import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
+import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import javax.inject.Inject
 
 
 
 
-class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback {
+class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {
 
     var mapView: SupportMapFragment? = null
     var map: GoogleMap? = null
@@ -42,18 +42,21 @@ class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback 
     @Inject
     lateinit var mLocationManager: LocationManager
 
+    @Inject
+    lateinit var mLocationInteractor: LocationInteractor
+
     init {
         MyApplication.appComponent.inject(this)
     }
 
     @ProvidePresenter
     fun provideMapFragmentPresenter(): MapFragmentPresenter {
-        return MapFragmentPresenter(mService, mLocationManager)
+        return MapFragmentPresenter(mService, mLocationManager, mLocationInteractor)
     }
 
-    override fun createPresenter(): BaseMapPresenter<*> {
-        return mPresenter
-    }
+//    override fun createPresenter(): BaseMapPresenter<*> {
+//        return mPresenter
+//    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -78,6 +81,11 @@ class MapFragment : BaseMapFragment(), MapFragmentInterface, OnMapReadyCallback 
         }
 
         mPresenter.setMapReady(true)
+    }
+
+    override fun onDestroyView() {
+        mPresenter.setMapReady(false)
+        super.onDestroyView()
     }
 
     override fun showMyLocation(latLng: Location) {

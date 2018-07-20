@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import com.igorkazakov.user.foursquareclient.R
 
 class FragmentProgress(activity: Activity?,
-                       private val mContainer: ViewGroup?) : LoadingInterface {
+                       private val mContainer: ViewGroup?) {
 
     private var mLoadingView: View? = null
     private var mIsLoading: Boolean = false
@@ -24,7 +24,7 @@ class FragmentProgress(activity: Activity?,
         }
     }
 
-    override fun showLoading() {
+     fun showLoading() {
 
         mLoadingView?.let {
             if (!mIsLoading) {
@@ -34,7 +34,7 @@ class FragmentProgress(activity: Activity?,
         }
     }
 
-    override fun hideLoading() {
+     fun hideLoading() {
         mLoadingView?.let {
             mContainer?.removeView(mLoadingView)
             mIsLoading = false
