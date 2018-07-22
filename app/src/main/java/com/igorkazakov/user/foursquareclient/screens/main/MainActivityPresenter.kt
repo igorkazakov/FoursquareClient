@@ -9,7 +9,6 @@ class MainActivityPresenter : MvpPresenter<MainActivityInterface>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        Log.e("LOCATION", "fragment onFirstViewAttach")
         viewState.showInitFragment()
     }
 }

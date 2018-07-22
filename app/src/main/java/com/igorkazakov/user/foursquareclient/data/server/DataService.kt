@@ -1,5 +1,6 @@
 package com.igorkazakov.user.foursquareclient.data.server
 
+import android.location.Location
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import io.reactivex.Observable
@@ -33,25 +34,15 @@ class DataService private constructor() {
                 .create(FoursquareApi::class.java);
     }
 
-    fun loadVenueRecommendations(latitudeLongitude: String) : Observable<List<VenueViewModel>> {
-
-        return service.venueRecommendations(clientId, clientSecret, radius, latitudeLongitude, versionApi)
-                .subscribeOn(Schedulers.io())
-                .flatMap {
-                    val models = mutableListOf<VenueViewModel>()
-                    it.response?.groups?.get(0)?.items?.forEach {
-                        it.venue?.let {
-                            models.add(VenueViewModel(it))
-                        }
-                    }
-
-                    Observable.fromArray(models)
-                }
+    private fun locationToString(location: Location): String {
+        return "${location.latitude}, ${location.longitude}"
     }
 
-    fun loadVenues(latitudeLongitude: String) : Observable<List<Venue>> {
+    fun loadVenueRecommendations(location: Location) : Observable<List<Venue>> {
 
-        return service.venueRecommendations(clientId, clientSecret, radius, latitudeLongitude, versionApi)
+        var latLngString = locationToString(location)
+
+        return service.venueRecommendations(clientId, clientSecret, radius, latLngString, versionApi)
                 .subscribeOn(Schedulers.io())
                 .flatMap {
                     val models = mutableListOf<Venue>()

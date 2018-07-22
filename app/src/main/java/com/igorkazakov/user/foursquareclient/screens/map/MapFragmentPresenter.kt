@@ -5,66 +5,41 @@ import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.igorkazakov.user.foursquareclient.data.server.DataService
-import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
+import com.igorkazakov.user.foursquareclient.data.server.model.Venue
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
+import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 @InjectViewState
-class MapFragmentPresenter(private val mService: DataService,
-                           locationManager: LocationManager,
-                           private var locationInteractor: LocationInteractor) :
+class MapFragmentPresenter(private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
         MvpPresenter<MapFragmentInterface>() {
 
-    private var myLocation: Location? = null
+
     private var mapIsReady: Boolean = false
+    private var mVenueMapModel: VenueMapModel? = null
 
     init {
-        locationInteractor.getLocationUpdates().subscribe {
+        showVenuesOnMapInteractor.getLocationUpdates().subscribe {
             locationChanged(it)
         }
     }
 
-    fun locationToString(location: Location): String {
-        return "${location.latitude}, ${location.longitude}"
-    }
+    private fun locationChanged(model: VenueMapModel) {
 
-    fun isLocationChanged(location: Location) : Boolean {
+        mVenueMapModel = model
+        if (mapIsReady) {
 
-        if (myLocation == null) {
-            myLocation = location
-            return true
-        }
-
-        return location.distanceTo(location) >= 100f
-    }
-
-    fun locationChanged(location: Location) {
-        myLocation = location
-        if (/*isLocationChanged(location) && */mapIsReady) {
-            viewState.showMyLocation(location)
-            loadData(locationToString(location))
+            viewState.showVenuesOnMap(model)
         }
     }
-//not work
+
     fun setMapReady(ready: Boolean) {
-        if (!mapIsReady) {
-            mapIsReady = ready
-            myLocation?.let {
+        mapIsReady = ready
+
+        if (mapIsReady) {
+            mVenueMapModel?.let {
                 locationChanged(it)
             }
         }
-    }
-
-    private fun loadData(latLng: String) {
-
-        mService.loadVenues(latLng)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe{ viewState.showLoading() }
-                .doOnTerminate { viewState.hideLoading() }
-                .subscribe({
-                    viewState.showVenuesOnMap(it)
-
-                }, {
-                    it.printStackTrace()
-                })
     }
 }

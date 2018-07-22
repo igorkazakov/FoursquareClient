@@ -1,6 +1,6 @@
 package com.igorkazakov.user.foursquareclient.di.module
 
-import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
+import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -10,5 +10,5 @@ class InteractorModule {
 
     @Provides
     @Singleton
-    fun provideLocationInteractor() = LocationInteractor()
+    fun provideShowVenuesOnMapInteractor() = ShowVenuesOnMapInteractor()
 }

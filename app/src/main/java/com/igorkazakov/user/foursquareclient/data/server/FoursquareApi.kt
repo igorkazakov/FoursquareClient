@@ -13,4 +13,5 @@ interface FoursquareApi {
                                     @Query("radius") radius: Double,
                                     @Query("ll") latitudeLongitude: String,
                                     @Query("v") version: String): Observable<RecommendationsResponse>
+
 }

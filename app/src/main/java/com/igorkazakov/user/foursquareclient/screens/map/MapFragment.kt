@@ -21,11 +21,11 @@ import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
-import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
+import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import javax.inject.Inject
-
-
+import com.google.android.gms.maps.CameraUpdate
 
 
 class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {
@@ -37,13 +37,7 @@ class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {
     lateinit var mPresenter: MapFragmentPresenter
 
     @Inject
-    lateinit var mService: DataService
-
-    @Inject
-    lateinit var mLocationManager: LocationManager
-
-    @Inject
-    lateinit var mLocationInteractor: LocationInteractor
+    lateinit var mShowVenuesOnMapInteractor: ShowVenuesOnMapInteractor
 
     init {
         MyApplication.appComponent.inject(this)
@@ -51,12 +45,8 @@ class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {
 
     @ProvidePresenter
     fun provideMapFragmentPresenter(): MapFragmentPresenter {
-        return MapFragmentPresenter(mService, mLocationManager, mLocationInteractor)
+        return MapFragmentPresenter(mShowVenuesOnMapInteractor)
     }
-
-//    override fun createPresenter(): BaseMapPresenter<*> {
-//        return mPresenter
-//    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -88,47 +78,55 @@ class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {
         super.onDestroyView()
     }
 
-    override fun showMyLocation(latLng: Location) {
+    private fun showMyLocation(latLng: Location) {
         map?.let {
 
             val ny = LatLng(latLng.latitude, latLng.longitude)
             val markerOptions = MarkerOptions()
             markerOptions.position(ny)
             it.addMarker(markerOptions)
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(ny, 17f)
+            it.animateCamera(cameraUpdate)
         }
     }
 
-    override fun showVenuesOnMap(venues: List<Venue>) {
+    override fun showVenuesOnMap(model: VenueMapModel) {
 
         map?.let {
 
-            val builder = LatLngBounds.Builder()
+            it.clear()
+            showMyLocation(model.myLocation)
 
-            venues.forEach { venue: Venue ->
+            if (model.venues.isNotEmpty()) {
 
-                val latitude = venue.location?.lat
-                val longitude = venue.location?.lng
+                val builder = LatLngBounds.Builder()
 
-                if (latitude != null && longitude != null) {
+                model.venues.forEach { venue: Venue ->
 
-                    val ll = LatLng(latitude, longitude)
-                    builder.include(ll)
+                    val latitude = venue.location?.lat
+                    val longitude = venue.location?.lng
 
-                    val markerOptions = MarkerOptions()
-                    markerOptions.position(ll)
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_venue_marker_icon))
-                    markerOptions.title(venue.name)
-                    it.addMarker(markerOptions)
+                    if (latitude != null && longitude != null) {
+
+                        val ll = LatLng(latitude, longitude)
+                        builder.include(ll)
+
+                        val markerOptions = MarkerOptions()
+                        markerOptions.position(ll)
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_venue_marker_icon))
+                        markerOptions.title(venue.name)
+                        it.addMarker(markerOptions)
+                    }
                 }
+
+                val width = resources.displayMetrics.widthPixels
+                val height = resources.displayMetrics.heightPixels
+                val padding = (width * 0.12).toInt()
+
+                val cameraUpdate = CameraUpdateFactory
+                        .newLatLngBounds(builder.build(), width, height, padding)
+                it.moveCamera(cameraUpdate)
             }
-
-            val width = resources.displayMetrics.widthPixels
-            val height = resources.displayMetrics.heightPixels
-            val padding = (width * 0.12).toInt()
-
-            val cameraUpdate = CameraUpdateFactory
-                    .newLatLngBounds(builder.build(), width, height, padding)
-            it.moveCamera(cameraUpdate)
         }
     }
 }

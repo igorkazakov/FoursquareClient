@@ -1,36 +1,128 @@
 package com.igorkazakov.user.foursquareclient.screens.list
 
+import android.location.Criteria
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
+import android.support.v4.app.Fragment
 import com.arellomobile.mvp.InjectViewState
+import com.arellomobile.mvp.MvpPresenter
 import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
-import com.igorkazakov.user.foursquareclient.interactors.LocationInteractor
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapPresenter
+import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
+
+import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 @InjectViewState
 class ListFragmentPresenter(private val mService: DataService,
-                            locationManager: LocationManager,
-                            private var locationInteractor: LocationInteractor) :
-        BaseMapPresenter<ListFragmentInterface>(locationManager) {
+                            private val mLocationManager: LocationManager,
+                            private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
+        MvpPresenter<ListFragmentInterface>() {
 
-    override fun locationChanged(location: Location) {
-        loadData(locationToString(location))
-        locationInteractor.postLocation(location)
+    private val MIN_DISTANCE = 100f
+    private val MIN_TIME = 0L
+    private var myLocation: Location? = null
+
+    private val mLocationListener: LocationListener = object : LocationListener {
+
+        override fun onLocationChanged(location: Location) {
+
+            if (isLocationChanged(location)) {
+                loadData(location)
+            }
+
+            myLocation = location
+        }
+
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 
-    private fun loadData(latLng: String) {
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        viewState.initUpdateLocation()
+    }
 
-        mService.loadVenueRecommendations(latLng)
+    fun isLocationChanged(location: Location) : Boolean {
+
+        if (myLocation != null) {
+            return location.distanceTo(myLocation) >= MIN_DISTANCE
+
+        } else {
+            return true
+        }
+    }
+
+    fun startLocationUpdates(fragment: Fragment) {
+
+        if (PermissionUtils.checkPermission(fragment,
+                        PermissionUtils.ACCESS_COARSE_LOCATION,
+                        PermissionUtils.REQUEST_CODE_ACCESS_COARSE_LOCATION) &&
+                PermissionUtils.checkPermission(fragment,
+                        PermissionUtils.ACCESS_FINE_LOCATION,
+                        PermissionUtils.REQUEST_CODE_ACCESS_FINE_LOCATION)) {
+
+            when {
+
+                mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ->
+                    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                            MIN_TIME,
+                            MIN_DISTANCE,
+                            mLocationListener)
+
+                mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ->
+                    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                            MIN_TIME,
+                            MIN_DISTANCE,
+                            mLocationListener)
+
+                else -> viewState.showLocationError()
+            }
+
+            val criteria = Criteria()
+            val bestProvider = mLocationManager.getBestProvider(criteria, false)
+            bestProvider?.let {
+                val location = mLocationManager.getLastKnownLocation(bestProvider)
+
+                if (location != null) {
+                    mLocationListener.onLocationChanged(location)
+
+                } else {
+                    mLocationManager.requestSingleUpdate(criteria, mLocationListener, null)
+                }
+            }
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        mLocationManager.removeUpdates(mLocationListener)
+    }
+
+    override fun onDestroy() {
+        stopLocationUpdates()
+        super.onDestroy()
+    }
+
+    private fun loadData(location: Location) {
+
+        mService.loadVenueRecommendations(location)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe{ viewState.showLoading() }
-                .doOnTerminate {  }
+                .doOnTerminate { viewState.hideLoading() }
                 .subscribe({
-                    viewState.showVenues(it)
-                    Thread.sleep(3000)
-                    viewState.hideLoading()
+
+                    val models = mutableListOf<VenueViewModel>()
+                    it.forEach {
+                        models.add(VenueViewModel(it))
+                    }
+
+                    viewState.showVenues(models)
+                    showVenuesOnMapInteractor.postLocation(VenueMapModel(location, it))
 
                 }, {
                     it.printStackTrace()

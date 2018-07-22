@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.igorkazakov.user.foursquareclient.screens.progress.FragmentProgress
 
+
 open class BaseFragment : MvpAppCompatFragment() {
 
     private var mProgress: FragmentProgress? = null
