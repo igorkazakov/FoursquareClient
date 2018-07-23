@@ -6,9 +6,11 @@ import android.support.v7.widget.Toolbar
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.arellomobile.mvp.MvpAppCompatActivity
+import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.screens.list.ListFragment
+import com.igorkazakov.user.foursquareclient.screens.list.ListFragmentPresenter
 import com.igorkazakov.user.foursquareclient.screens.map.MapFragment
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx
 
@@ -22,8 +24,11 @@ class MainActivity : MvpAppCompatActivity(), MainActivityInterface {
     @BindView(R.id.bottom_navigation)
     lateinit var bottomNavigation: BottomNavigationViewEx
 
+    @InjectPresenter
+    lateinit var mPresenter: MainActivityPresenter
+
     @ProvidePresenter
-    fun provideLoginPresenter() : MainActivityPresenter {
+    fun provideMainActivityPresenter() : MainActivityPresenter {
         return MainActivityPresenter()
     }
 

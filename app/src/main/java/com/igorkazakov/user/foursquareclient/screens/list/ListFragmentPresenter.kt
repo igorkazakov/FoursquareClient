@@ -1,5 +1,7 @@
 package com.igorkazakov.user.foursquareclient.screens.list
 
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -14,17 +16,22 @@ import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import android.arch.lifecycle.OnLifecycleEvent
+
+
 
 
 @InjectViewState
 class ListFragmentPresenter(private val mRepository: RepositoryInterface,
                             private val mLocationManager: LocationManager,
                             private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
-        MvpPresenter<ListFragmentInterface>() {
+        MvpPresenter<ListFragmentInterface>(), LifecycleObserver {
 
     private val MIN_DISTANCE = 100f
     private val MIN_TIME = 0L
     private var myLocation: Location? = null
+    private var disposable: Disposable? = null
 
     private val mLocationListener: LocationListener = object : LocationListener {
 
@@ -107,9 +114,19 @@ class ListFragmentPresenter(private val mRepository: RepositoryInterface,
         super.onDestroy()
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun viewDestroyed() {
+        disposable?.let {
+            if (!it.isDisposed) it.dispose()
+        }
+    }
+
     private fun loadData(location: Location) {
 
         mRepository.loadVenueRecommendations(location)
+                .doOnSubscribe {
+                    disposable = it
+                }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe{ viewState.showLoading() }
                 .doOnTerminate { viewState.hideLoading() }

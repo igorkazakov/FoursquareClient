@@ -57,6 +57,8 @@ class ListFragment : BaseFragment(), ListFragmentInterface {
                               savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
 
+        lifecycle.addObserver(mPresenter)
+
         val view = inflater.inflate(R.layout.fragment_list, container, false)
         ButterKnife.bind(this, view)
 

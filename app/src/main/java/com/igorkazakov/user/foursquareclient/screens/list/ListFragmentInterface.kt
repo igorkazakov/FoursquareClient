@@ -15,7 +15,8 @@ interface ListFragmentInterface : MvpView, LoadingInterface {
     @StateStrategyType(value = SkipStrategy::class)
     fun initUpdateLocation()
 
-    @StateStrategyType(value = SingleStateStrategy::class)
+    @StateStrategyType(value = SkipStrategy::class)
+    //@StateStrategyType(value = SingleStateStrategy::class)
     fun showVenues(venues: List<VenueViewModel>)
 
     @StateStrategyType(value = SkipStrategy::class)
