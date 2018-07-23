@@ -1,7 +1,6 @@
 package com.igorkazakov.user.foursquareclient.screens.map
 
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,13 +18,11 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.data.server.DataService
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
 import javax.inject.Inject
-import com.google.android.gms.maps.CameraUpdate
 
 
 class MapFragment : BaseFragment(), MapFragmentInterface, OnMapReadyCallback {

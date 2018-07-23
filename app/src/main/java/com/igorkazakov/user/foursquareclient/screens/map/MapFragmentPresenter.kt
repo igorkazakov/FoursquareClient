@@ -1,17 +1,12 @@
 package com.igorkazakov.user.foursquareclient.screens.map
 
-import android.location.Location
-import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import com.igorkazakov.user.foursquareclient.data.server.DataService
-import com.igorkazakov.user.foursquareclient.data.server.model.Venue
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 @InjectViewState
-class MapFragmentPresenter(private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
+class MapFragmentPresenter(showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
         MvpPresenter<MapFragmentInterface>() {
 
 

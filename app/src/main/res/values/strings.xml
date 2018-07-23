@@ -5,4 +5,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="venue_detail">Venue detail</string>
     <string name="location_permission_title">Требуется разрешение на определение местоположения</string>
+    <string name="location_error_title">Внимание</string>
+    <string name="location_error_message">Не удалось определить местоположение, включите передачу геоданных</string>
 </resources>

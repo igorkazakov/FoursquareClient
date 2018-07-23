@@ -1,6 +1,5 @@
 package com.igorkazakov.user.foursquareclient.screens.list
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
@@ -15,7 +14,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.server.RepositoryInterface
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
 import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
@@ -34,7 +33,7 @@ class ListFragment : BaseFragment(), ListFragmentInterface {
     lateinit var mPresenter: ListFragmentPresenter
 
     @Inject
-    lateinit var mService: DataService
+    lateinit var mRepository: RepositoryInterface
 
     @Inject
     lateinit var mLocationManager: LocationManager
@@ -48,7 +47,10 @@ class ListFragment : BaseFragment(), ListFragmentInterface {
 
     @ProvidePresenter
     fun provideListFragmentPresenter(): ListFragmentPresenter {
-        return ListFragmentPresenter(mService, mLocationManager, mShowVenuesOnMapInteractor)
+        return ListFragmentPresenter(
+                mRepository,
+                mLocationManager,
+                mShowVenuesOnMapInteractor)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -90,8 +92,8 @@ class ListFragment : BaseFragment(), ListFragmentInterface {
     override fun showLocationError() {
         context?.let {
             DialogUtils.showErrorDialog(it,
-                    "Внимание",
-                    "Не удалось определить местоположение, включите передачу геоданных")
+                    resources.getString(R.string.location_error_title),
+                    resources.getString(R.string.location_error_message))
         }
     }
 

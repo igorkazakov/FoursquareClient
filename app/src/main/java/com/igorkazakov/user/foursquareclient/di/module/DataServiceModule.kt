@@ -1,6 +1,7 @@
 package com.igorkazakov.user.foursquareclient.di.module
 
-import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.server.Repository
+import com.igorkazakov.user.foursquareclient.data.server.RepositoryInterface
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -10,5 +11,7 @@ class DataServiceModule {
 
     @Singleton
     @Provides
-    fun provideDataService() = DataService.instance
+    fun provideDataService() : RepositoryInterface {
+        return Repository.instance
+    }
 }

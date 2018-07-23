@@ -2,21 +2,20 @@ package com.igorkazakov.user.foursquareclient.data.server
 
 import android.location.Location
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
-import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class DataService private constructor() {
+class Repository private constructor() : RepositoryInterface {
 
     private object HOLDER {
-        val INSTANCE = DataService()
+        val INSTANCE = Repository()
     }
 
     companion object {
-        val instance: DataService by lazy { HOLDER.INSTANCE }
+        val instance: Repository by lazy { HOLDER.INSTANCE }
     }
 
     private val baseUrl = "https://api.foursquare.com/v2/"
@@ -38,9 +37,9 @@ class DataService private constructor() {
         return "${location.latitude}, ${location.longitude}"
     }
 
-    fun loadVenueRecommendations(location: Location) : Observable<List<Venue>> {
+    override fun loadVenueRecommendations(location: Location) : Observable<List<Venue>> {
 
-        var latLngString = locationToString(location)
+        val latLngString = locationToString(location)
 
         return service.venueRecommendations(clientId, clientSecret, radius, latLngString, versionApi)
                 .subscribeOn(Schedulers.io())

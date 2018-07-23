@@ -8,17 +8,16 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.server.RepositoryInterface
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteractor
-
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 @InjectViewState
-class ListFragmentPresenter(private val mService: DataService,
+class ListFragmentPresenter(private val mRepository: RepositoryInterface,
                             private val mLocationManager: LocationManager,
                             private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
         MvpPresenter<ListFragmentInterface>() {
@@ -110,7 +109,7 @@ class ListFragmentPresenter(private val mService: DataService,
 
     private fun loadData(location: Location) {
 
-        mService.loadVenueRecommendations(location)
+        mRepository.loadVenueRecommendations(location)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe{ viewState.showLoading() }
                 .doOnTerminate { viewState.hideLoading() }
