@@ -17,7 +17,7 @@ class LocationViewModel(application: MyApplication,
     val locationErrorLiveData: MutableLiveData<Boolean> = MutableLiveData()
     var locationLiveData: MutableLiveData<Location> = MutableLiveData()
 
-    private val MIN_TIME = 9999L
+    private val MIN_TIME = 0L
     private val MIN_DISTANCE = 100f
     private var mLocation: Location? = null
     private var mLocationUpdatesInProgress: Boolean = false

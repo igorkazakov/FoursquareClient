@@ -18,12 +18,15 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.igorkazakov.user.foursquareclient.R
 import com.igorkazakov.user.foursquareclient.data.server.model.Venue
+import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.databinding.FragmentMapBinding
-import com.igorkazakov.user.foursquareclient.screens.base.map.BaseMapFragment
+import com.igorkazakov.user.foursquareclient.screens.base.fragment.BaseFragment
+
 import com.igorkazakov.user.foursquareclient.screens.viewModel.MapFragmentVewModel
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 
-class MapFragment : BaseMapFragment(), OnMapReadyCallback {
+
+class MapFragment : BaseFragment(), OnMapReadyCallback {
 
     private var mapView: SupportMapFragment? = null
     private var map: GoogleMap? = null
@@ -62,16 +65,6 @@ class MapFragment : BaseMapFragment(), OnMapReadyCallback {
             showVenuesOnMap(it!!)
             hideLoading()
         })
-
-        locationViewModel.locationLiveData.observe(this, Observer<Location> {
-
-            if (locationViewModel.isLocationChanged(it!!)) {
-                showLoading()
-                mapFragmentViewModel.loadData(it)
-            }
-
-            showMyLocation(it)
-        })
     }
 
     private fun showMyLocation(latLng: Location) {
@@ -81,40 +74,50 @@ class MapFragment : BaseMapFragment(), OnMapReadyCallback {
             val markerOptions = MarkerOptions()
             markerOptions.position(ny)
             it.addMarker(markerOptions)
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(ny, 17f)
+            it.animateCamera(cameraUpdate)
         }
     }
 
-    private fun showVenuesOnMap(venues: List<Venue>) {
+    private fun showVenuesOnMap(model: VenueMapModel) {
 
         map?.let {
 
-            val builder = LatLngBounds.Builder()
+            it.clear()
 
-            venues.forEach { venue: Venue ->
+            showMyLocation(model.location)
 
-                val latitude = venue.location?.lat
-                val longitude = venue.location?.lng
+            if (model.venues.isNotEmpty()) {
 
-                if (latitude != null && longitude != null) {
+                val builder = LatLngBounds.Builder()
 
-                    val ll = LatLng(latitude, longitude)
-                    builder.include(ll)
+                model.venues.forEach { venue: Venue ->
 
-                    val markerOptions = MarkerOptions()
-                    markerOptions.position(ll)
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_venue_marker_icon))
-                    markerOptions.title(venue.name)
-                    it.addMarker(markerOptions)
+                    val latitude = venue.location?.lat
+                    val longitude = venue.location?.lng
+
+                    if (latitude != null && longitude != null) {
+
+                        val ll = LatLng(latitude, longitude)
+                        builder.include(ll)
+
+                        val markerOptions = MarkerOptions()
+                        markerOptions.position(ll)
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_venue_marker_icon))
+                        markerOptions.title(venue.name)
+                        it.addMarker(markerOptions)
+                    }
                 }
+
+                val width = resources.displayMetrics.widthPixels
+                val height = resources.displayMetrics.heightPixels
+                val padding = (width * 0.12).toInt()
+
+                val cameraUpdate = CameraUpdateFactory
+                        .newLatLngBounds(builder.build(), width, height, padding)
+                it.moveCamera(cameraUpdate)
+
             }
-
-            val width = resources.displayMetrics.widthPixels
-            val height = resources.displayMetrics.heightPixels
-            val padding = (width * 0.12).toInt()
-
-            val cameraUpdate = CameraUpdateFactory
-                    .newLatLngBounds(builder.build(), width, height, padding)
-            it.moveCamera(cameraUpdate)
         }
     }
 }

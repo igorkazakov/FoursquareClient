@@ -5,7 +5,8 @@ import android.arch.lifecycle.ViewModelProvider
 import android.location.LocationManager
 import android.support.annotation.NonNull
 import com.igorkazakov.user.foursquareclient.application.MyApplication
-import com.igorkazakov.user.foursquareclient.data.server.DataService
+import com.igorkazakov.user.foursquareclient.data.RepositoryInterface
+import com.igorkazakov.user.foursquareclient.screens.iteractor.ShowVenuesOnMapInteractor
 import javax.inject.Inject
 
 
@@ -16,10 +17,13 @@ class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
     lateinit var mApplication: MyApplication
 
     @Inject
-    lateinit var mService: DataService
+    lateinit var mRepository: RepositoryInterface
 
     @Inject
     lateinit var mLocationManager: LocationManager
+
+    @Inject
+    lateinit var mShowVenuesOnMapInteractor: ShowVenuesOnMapInteractor
 
     init {
         MyApplication.appComponent.inject(this)
@@ -29,11 +33,18 @@ class ViewModelFactory : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(@NonNull modelClass: Class<T>): T {
         return when (modelClass) {
 
-            ListFragmentViewModel::class.java -> ListFragmentViewModel(mApplication, mService) as T
+            ListFragmentViewModel::class.java -> ListFragmentViewModel(
+                    mApplication,
+                    mRepository,
+                    mShowVenuesOnMapInteractor) as T
 
-            LocationViewModel::class.java -> LocationViewModel(mApplication, mLocationManager) as T
+            LocationViewModel::class.java -> LocationViewModel(
+                    mApplication,
+                    mLocationManager) as T
 
-            MapFragmentVewModel::class.java -> MapFragmentVewModel(mApplication, mService) as T
+            MapFragmentVewModel::class.java -> MapFragmentVewModel(
+                    mApplication,
+                    mShowVenuesOnMapInteractor) as T
 
             else -> {
                 ViewModelFactory() as T
