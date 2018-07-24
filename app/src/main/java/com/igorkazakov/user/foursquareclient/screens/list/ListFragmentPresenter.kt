@@ -2,6 +2,7 @@ package com.igorkazakov.user.foursquareclient.screens.list
 
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -17,7 +18,6 @@ import com.igorkazakov.user.foursquareclient.interactors.ShowVenuesOnMapInteract
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import android.arch.lifecycle.OnLifecycleEvent
 
 
 
@@ -31,7 +31,8 @@ class ListFragmentPresenter(private val mRepository: RepositoryInterface,
     private val MIN_DISTANCE = 100f
     private val MIN_TIME = 0L
     private var myLocation: Location? = null
-    private var disposable: Disposable? = null
+    private var mDisposable: Disposable? = null
+    private var mVenues: MutableList<VenueViewModel>? = null
 
     private val mLocationListener: LocationListener = object : LocationListener {
 
@@ -114,9 +115,16 @@ class ListFragmentPresenter(private val mRepository: RepositoryInterface,
         super.onDestroy()
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    fun viewCreated() {
+        if (mVenues == null && myLocation != null) {
+            loadData(myLocation!!)
+        }
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun viewDestroyed() {
-        disposable?.let {
+        mDisposable?.let {
             if (!it.isDisposed) it.dispose()
         }
     }
@@ -125,19 +133,19 @@ class ListFragmentPresenter(private val mRepository: RepositoryInterface,
 
         mRepository.loadVenueRecommendations(location)
                 .doOnSubscribe {
-                    disposable = it
+                    mDisposable = it
                 }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe{ viewState.showLoading() }
                 .doOnTerminate { viewState.hideLoading() }
                 .subscribe({
 
-                    val models = mutableListOf<VenueViewModel>()
+                    mVenues = mutableListOf()
                     it.forEach {
-                        models.add(VenueViewModel(it))
+                        mVenues!!.add(VenueViewModel(it))
                     }
 
-                    viewState.showVenues(models)
+                    viewState.showVenues(mVenues!!)
                     showVenuesOnMapInteractor.postLocation(VenueMapModel(location, it))
 
                 }, {
