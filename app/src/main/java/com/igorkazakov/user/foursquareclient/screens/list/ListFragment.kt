@@ -56,6 +56,7 @@ class ListFragment : BaseFragment() {
 
         locationViewModel = ViewModelProviders.of(this, ViewModelFactory()).get(LocationViewModel::class.java)
 
+        lifecycle.addObserver(listFragmentViewModel)
         locationViewModel.startLocationUpdates(this)
         locationViewModel.locationErrorLiveData.observe(this, Observer {
 
@@ -66,7 +67,7 @@ class ListFragment : BaseFragment() {
 
         locationViewModel.locationLiveData.observe(this, Observer<Location> {
 
-            if (locationViewModel.isLocationChanged(it!!)) {
+            if (locationViewModel.isLocationChanged(it!!) || listFragmentViewModel.needData()) {
                 showLoading()
                 listFragmentViewModel.loadData(it)
             }
