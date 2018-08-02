@@ -20,6 +20,7 @@ import com.igorkazakov.user.foursquareclient.screens.viewModel.ListFragmentViewM
 import com.igorkazakov.user.foursquareclient.screens.viewModel.LocationViewModel
 import com.igorkazakov.user.foursquareclient.screens.viewModel.ViewModelFactory
 import com.igorkazakov.user.foursquareclient.utils.PermissionUtils
+import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle
 
 
 class ListFragment : BaseFragment() {
@@ -56,7 +57,6 @@ class ListFragment : BaseFragment() {
 
         locationViewModel = ViewModelProviders.of(this, ViewModelFactory()).get(LocationViewModel::class.java)
 
-        lifecycle.addObserver(listFragmentViewModel)
         locationViewModel.startLocationUpdates(this)
         locationViewModel.locationErrorLiveData.observe(this, Observer {
 
@@ -69,7 +69,7 @@ class ListFragment : BaseFragment() {
 
             if (locationViewModel.isLocationChanged(it!!) || listFragmentViewModel.needData()) {
                 showLoading()
-                listFragmentViewModel.loadData(it)
+                listFragmentViewModel.loadData(it, this)
             }
         })
 

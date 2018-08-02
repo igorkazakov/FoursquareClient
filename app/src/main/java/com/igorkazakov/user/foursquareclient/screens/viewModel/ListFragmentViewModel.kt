@@ -2,23 +2,24 @@ package com.igorkazakov.user.foursquareclient.screens.viewModel
 
 import android.arch.lifecycle.*
 import android.location.Location
+import android.support.v4.app.Fragment
+import android.util.Log
 import com.igorkazakov.user.foursquareclient.application.MyApplication
 import com.igorkazakov.user.foursquareclient.data.RepositoryInterface
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueMapModel
 import com.igorkazakov.user.foursquareclient.data.view.model.VenueViewModel
 import com.igorkazakov.user.foursquareclient.screens.iteractor.ShowVenuesOnMapInteractor
+import com.trello.rxlifecycle2.LifecycleProvider
+import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 
 class ListFragmentViewModel(application: MyApplication,
                             private var mRepository: RepositoryInterface,
                             private var showVenuesOnMapInteractor: ShowVenuesOnMapInteractor) :
-        AndroidViewModel(application),
-        LifecycleObserver {
+        AndroidViewModel(application) {
 
     var venuesLiveData: MutableLiveData<List<VenueViewModel>> = MutableLiveData()
-
-    private var mDisposable: Disposable? = null
 
     fun needData() : Boolean {
 
@@ -30,19 +31,10 @@ class ListFragmentViewModel(application: MyApplication,
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun viewDestroyed() {
-        mDisposable?.let {
-            if (!it.isDisposed) it.dispose()
-        }
-    }
-
-    fun loadData(location: Location) {
+    fun loadData(location: Location, fragment: Fragment) {
 
         mRepository.loadVenueRecommendations(location)
-                .doOnSubscribe {
-                    mDisposable = it
-                }
+                .bindToLifecycle(fragment)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
 
@@ -52,7 +44,6 @@ class ListFragmentViewModel(application: MyApplication,
                     }
 
                     venuesLiveData.value = models
-
                     showVenuesOnMapInteractor.postLocation(VenueMapModel(location, it))
 
                 }, {
